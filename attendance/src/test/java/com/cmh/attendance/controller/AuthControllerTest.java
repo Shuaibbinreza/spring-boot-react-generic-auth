@@ -16,6 +16,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import jakarta.servlet.http.Cookie;
 import java.util.Set;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -232,5 +233,31 @@ public class AuthControllerTest {
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.accessToken").exists())
                 .andExpect(jsonPath("$.data.refreshToken").value(refreshToken));
+    }
+
+    @Test
+    void testProtectedEndpoint_WithCookieToken() throws Exception {
+        RegisterRequest registerRequest = new RegisterRequest(
+                "cookie_user",
+                "cookie@example.com",
+                "password123",
+                "Cookie User",
+                Set.of(Role.ROLE_USER)
+        );
+
+        MvcResult regResult = mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(registerRequest)))
+                .andExpect(header().exists("Set-Cookie"))
+                .andReturn();
+
+        JsonNode responseNode = objectMapper.readTree(regResult.getResponse().getContentAsString());
+        String token = responseNode.get("data").get("accessToken").asText();
+
+        mockMvc.perform(get("/api/auth/me")
+                        .cookie(new Cookie("accessToken", token)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.username").value("cookie_user"));
     }
 }

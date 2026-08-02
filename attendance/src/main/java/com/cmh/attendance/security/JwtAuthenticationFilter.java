@@ -2,6 +2,7 @@ package com.cmh.attendance.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
@@ -59,6 +60,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private String getJwtFromRequest(HttpServletRequest request) {
+        // 1. Check cookies for accessToken
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("accessToken".equals(cookie.getName()) && StringUtils.hasText(cookie.getValue())) {
+                    return cookie.getValue().trim();
+                }
+            }
+        }
+
+        // 2. Fallback to Authorization header
         String bearerToken = request.getHeader(headerName);
         if (StringUtils.hasText(bearerToken)) {
             if (bearerToken.startsWith("Bearer ")) {
