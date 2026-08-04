@@ -67,6 +67,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/refresh").permitAll()
                         .requestMatchers("/api/test/public").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
+                        .requestMatchers("/api/admin/**", "/api/attendance/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/attendance/**").authenticated()
                         .requestMatchers("/api/test/admin").hasRole("ADMIN")
                         .requestMatchers("/api/test/user").hasAnyRole("USER", "ADMIN")
                         .anyRequest().authenticated()
