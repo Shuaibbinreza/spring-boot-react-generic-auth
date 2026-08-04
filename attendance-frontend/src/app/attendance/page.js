@@ -66,27 +66,27 @@ function AttendanceContent() {
   const getStatusBadge = (status) => {
     switch (status) {
       case 'PRESENT':
-        return <span className="px-2 py-0.5 text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">✅ Present</span>;
+        return <span className="px-2.5 py-1 text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">✅ Present</span>;
       case 'LATE':
-        return <span className="px-2 py-0.5 text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">⚠️ Late</span>;
+        return <span className="px-2.5 py-1 text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">⚠️ Late</span>;
       case 'ON_LEAVE':
-        return <span className="px-2 py-0.5 text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200">✈️ On Leave</span>;
+        return <span className="px-2.5 py-1 text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200">✈️ On Leave</span>;
       case 'ABSENT':
-        return <span className="px-2 py-0.5 text-xs font-semibold bg-red-50 text-red-700 border border-red-200">❌ Absent</span>;
+        return <span className="px-2.5 py-1 text-xs font-bold bg-red-50 text-red-700 border border-red-200">❌ Absent</span>;
       default:
-        return <span className="px-2 py-0.5 text-xs font-semibold bg-stone-50 text-stone-700 border border-stone-200">{status}</span>;
+        return <span className="px-2.5 py-1 text-xs font-bold bg-stone-50 text-stone-700 border border-stone-200">{status}</span>;
     }
   };
 
   return (
     <div className="space-y-6">
       <div className="border-b border-maroon-200 pb-4">
-        <h1 className="text-2xl font-bold text-maroon-700 tracking-tight">Submit Attendance</h1>
-        <p className="text-sm text-stone-600 mt-1">Record your daily attendance status and review your historical submissions.</p>
+        <h1 className="text-3xl font-extrabold text-maroon-700 tracking-tight">Submit Attendance</h1>
+        <p className="text-base text-stone-600 mt-1">Record your daily attendance status and review your historical submissions.</p>
       </div>
 
       {message.text && (
-        <div className={`p-4 text-xs font-medium border flex items-center gap-2 ${
+        <div className={`p-4 text-sm font-semibold border flex items-center gap-2 ${
           message.type === 'success' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-red-50 text-red-800 border-red-200'
         }`}>
           <span>{message.type === 'success' ? '✅' : '⚠️'}</span>
@@ -96,39 +96,39 @@ function AttendanceContent() {
 
       {/* Today's Status Banner */}
       <div className="bg-white border border-maroon-300 p-6 shadow-maroon-sm">
-        <div className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+        <div className="text-sm font-semibold text-stone-500 uppercase tracking-wider mb-3 flex items-center gap-2">
           <span>📅</span> Today's Attendance Overview ({new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })})
         </div>
         {loading ? (
-          <p className="text-xs text-stone-500">Loading today's status...</p>
+          <p className="text-sm text-stone-500">Loading today's status...</p>
         ) : todayRecord ? (
-          <div className="flex flex-wrap items-center gap-6 text-sm text-stone-800">
+          <div className="flex flex-wrap items-center gap-6 text-base text-stone-800">
             <div>
-              <span className="text-xs text-stone-500 mr-2">Status:</span> {getStatusBadge(todayRecord.status)}
+              <span className="text-sm text-stone-500 mr-2">Status:</span> {getStatusBadge(todayRecord.status)}
             </div>
             <div>
-              <span className="text-xs text-stone-500 mr-2">Check-in Time:</span>{' '}
-              <span className="font-semibold text-stone-900">
+              <span className="text-sm text-stone-500 mr-2">Check-in Time:</span>{' '}
+              <span className="font-bold text-stone-900">
                 {new Date(todayRecord.checkInTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
               </span>
             </div>
             {todayRecord.groupName && (
               <div>
-                <span className="text-xs text-stone-500 mr-2">Group:</span>{' '}
-                <span className="px-2 py-0.5 text-xs font-semibold bg-maroon-50 text-maroon-700 border border-maroon-300">
+                <span className="text-sm text-stone-500 mr-2">Group:</span>{' '}
+                <span className="px-2.5 py-1 text-xs font-bold bg-maroon-50 text-maroon-700 border border-maroon-300">
                   {todayRecord.groupName}
                 </span>
               </div>
             )}
             {todayRecord.notes && (
               <div>
-                <span className="text-xs text-stone-500 mr-2">Notes:</span>{' '}
+                <span className="text-sm text-stone-500 mr-2">Notes:</span>{' '}
                 <em className="text-stone-700">"{todayRecord.notes}"</em>
               </div>
             )}
           </div>
         ) : (
-          <div className="text-amber-700 text-sm font-medium">
+          <div className="text-amber-700 text-base font-semibold">
             ⚠️ You have not submitted attendance for today yet.
           </div>
         )}
@@ -137,13 +137,13 @@ function AttendanceContent() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Attendance Submission Form */}
         <div className="bg-white border border-maroon-300 p-6 shadow-maroon-sm lg:col-span-1">
-          <div className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-4 flex items-center gap-2">
+          <div className="text-sm font-semibold text-stone-500 uppercase tracking-wider mb-4 flex items-center gap-2">
             <span>✍️</span> {todayRecord ? 'Update Attendance' : 'Mark Attendance'}
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="attendanceDate" className="block text-xs font-semibold text-stone-700 uppercase tracking-wider mb-1.5">
+              <label htmlFor="attendanceDate" className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
                 Date
               </label>
               <input
@@ -152,12 +152,12 @@ function AttendanceContent() {
                 value={form.attendanceDate}
                 onChange={(e) => setForm({ ...form, attendanceDate: e.target.value })}
                 required
-                className="w-full px-3.5 py-2 bg-white border border-maroon-300 text-stone-900 text-sm focus:outline-none focus:border-maroon-700 focus:ring-1 focus:ring-maroon-700"
+                className="w-full px-4 py-2.5 bg-white border border-maroon-300 text-stone-900 text-base focus:outline-none focus:border-maroon-700 focus:ring-1 focus:ring-maroon-700"
               />
             </div>
 
             <div>
-              <label htmlFor="status" className="block text-xs font-semibold text-stone-700 uppercase tracking-wider mb-1.5">
+              <label htmlFor="status" className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
                 Attendance Status
               </label>
               <select
@@ -165,7 +165,7 @@ function AttendanceContent() {
                 value={form.status}
                 onChange={(e) => setForm({ ...form, status: e.target.value })}
                 required
-                className="w-full px-3.5 py-2 bg-white border border-maroon-300 text-stone-900 text-sm focus:outline-none focus:border-maroon-700 focus:ring-1 focus:ring-maroon-700"
+                className="w-full px-4 py-2.5 bg-white border border-maroon-300 text-stone-900 text-base focus:outline-none focus:border-maroon-700 focus:ring-1 focus:ring-maroon-700"
               >
                 <option value="PRESENT">Present</option>
                 <option value="LATE">Late</option>
@@ -175,7 +175,7 @@ function AttendanceContent() {
             </div>
 
             <div>
-              <label htmlFor="notes" className="block text-xs font-semibold text-stone-700 uppercase tracking-wider mb-1.5">
+              <label htmlFor="notes" className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
                 Notes / Reason (Optional)
               </label>
               <textarea
@@ -185,14 +185,14 @@ function AttendanceContent() {
                 value={form.notes}
                 onChange={(e) => setForm({ ...form, notes: e.target.value })}
                 maxLength={500}
-                className="w-full px-3.5 py-2 bg-white border border-maroon-300 text-stone-900 text-sm focus:outline-none focus:border-maroon-700 focus:ring-1 focus:ring-maroon-700 resize-none"
+                className="w-full px-4 py-2.5 bg-white border border-maroon-300 text-stone-900 text-base focus:outline-none focus:border-maroon-700 focus:ring-1 focus:ring-maroon-700 resize-none"
               />
             </div>
 
             <button
               type="submit"
               disabled={submitting}
-              className="w-full py-2.5 px-4 bg-maroon-700 hover:bg-maroon-800 text-white font-semibold text-sm transition-colors shadow-sm disabled:opacity-50 cursor-pointer mt-2"
+              className="w-full py-3 px-4 bg-maroon-700 hover:bg-maroon-800 text-white font-bold text-base transition-colors shadow-sm disabled:opacity-50 cursor-pointer mt-2"
             >
               {submitting ? 'Submitting...' : todayRecord ? 'Update Submission' : 'Submit Attendance'}
             </button>
@@ -201,53 +201,53 @@ function AttendanceContent() {
 
         {/* Personal Attendance History Table */}
         <div className="bg-white border border-maroon-300 p-6 shadow-maroon-sm lg:col-span-2">
-          <div className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-4 flex items-center gap-2">
+          <div className="text-sm font-semibold text-stone-500 uppercase tracking-wider mb-4 flex items-center gap-2">
             <span>📋</span> Attendance History
           </div>
 
           {loading ? (
-            <p className="text-xs text-stone-500">Loading attendance history...</p>
+            <p className="text-sm text-stone-500">Loading attendance history...</p>
           ) : history.length === 0 ? (
-            <p className="text-sm text-stone-500 py-6 text-center">No attendance records found.</p>
+            <p className="text-base text-stone-500 py-6 text-center">No attendance records found.</p>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
+              <table className="w-full text-left text-base">
                 <thead>
-                  <tr className="border-b border-maroon-300 text-stone-500 text-xs font-semibold uppercase tracking-wider">
-                    <th className="py-2.5 px-3">Date</th>
-                    <th className="py-2.5 px-3">Status</th>
-                    <th className="py-2.5 px-3">Check-in Time</th>
-                    <th className="py-2.5 px-3">Group</th>
-                    <th className="py-2.5 px-3">Notes</th>
+                  <tr className="border-b border-maroon-300 text-stone-500 text-xs font-bold uppercase tracking-wider">
+                    <th className="py-3 px-3">Date</th>
+                    <th className="py-3 px-3">Status</th>
+                    <th className="py-3 px-3">Check-in Time</th>
+                    <th className="py-3 px-3">Group</th>
+                    <th className="py-3 px-3">Notes</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-maroon-100">
                   {history.map((record) => (
                     <tr key={record.id} className="hover:bg-maroon-100/50 transition-colors">
-                      <td className="py-3 px-3 font-semibold text-stone-900">
+                      <td className="py-3.5 px-3 font-bold text-stone-900">
                         {new Date(record.attendanceDate + 'T00:00:00').toLocaleDateString('en-US', {
                           year: 'numeric',
                           month: 'short',
                           day: 'numeric',
                         })}
                       </td>
-                      <td className="py-3 px-3">{getStatusBadge(record.status)}</td>
-                      <td className="py-3 px-3 text-stone-700">
+                      <td className="py-3.5 px-3">{getStatusBadge(record.status)}</td>
+                      <td className="py-3.5 px-3 text-stone-700">
                         {new Date(record.checkInTime).toLocaleTimeString('en-US', {
                           hour: '2-digit',
                           minute: '2-digit',
                         })}
                       </td>
-                      <td className="py-3 px-3">
+                      <td className="py-3.5 px-3">
                         {record.groupName ? (
-                          <span className="px-2 py-0.5 text-xs font-semibold bg-maroon-50 text-maroon-700 border border-maroon-300">
+                          <span className="px-2.5 py-1 text-xs font-bold bg-maroon-50 text-maroon-700 border border-maroon-300">
                             {record.groupName}
                           </span>
                         ) : (
                           '—'
                         )}
                       </td>
-                      <td className="py-3 px-3 text-stone-600 text-xs">{record.notes || '—'}</td>
+                      <td className="py-3.5 px-3 text-stone-600 text-sm">{record.notes || '—'}</td>
                     </tr>
                   ))}
                 </tbody>
