@@ -17,5 +17,8 @@ public class UserSummaryDto {
     private String username;
     private String email;
     private String fullName;
+    private String rank;
+    private String designation;
+    private String force;
     private Set<Role> roles;
 }

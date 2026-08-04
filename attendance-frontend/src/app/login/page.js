@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 
 export default function LoginPage() {
   const [usernameOrEmail, setUsernameOrEmail] = useState('');
@@ -99,11 +98,8 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="text-center mt-6 text-xs text-stone-600">
-          Don&apos;t have an account?{' '}
-          <Link href="/register" className="font-semibold text-maroon-700 hover:underline">
-            Create one
-          </Link>
+        <div className="text-center mt-6 text-xs text-stone-500 border-t border-maroon-100 pt-4">
+          🔒 Account creation is restricted to System Administrators.
         </div>
       </div>
     </div>

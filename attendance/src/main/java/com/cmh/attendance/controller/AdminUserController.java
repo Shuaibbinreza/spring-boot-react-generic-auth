@@ -1,13 +1,16 @@
 package com.cmh.attendance.controller;
 
 import com.cmh.attendance.dto.ApiResponse;
+import com.cmh.attendance.dto.AuthResponse;
+import com.cmh.attendance.dto.RegisterRequest;
 import com.cmh.attendance.dto.UserSummaryDto;
+import com.cmh.attendance.service.AuthService;
 import com.cmh.attendance.service.UserService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -17,14 +20,23 @@ import java.util.List;
 public class AdminUserController {
 
     private final UserService userService;
+    private final AuthService authService;
 
-    public AdminUserController(UserService userService) {
+    public AdminUserController(UserService userService, AuthService authService) {
         this.userService = userService;
+        this.authService = authService;
     }
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<UserSummaryDto>>> getAllUsers() {
         List<UserSummaryDto> users = userService.getAllUsers();
         return ResponseEntity.ok(ApiResponse.success("Users retrieved successfully", users));
+    }
+
+    @PostMapping
+    public ResponseEntity<ApiResponse<AuthResponse>> createUser(@Valid @RequestBody RegisterRequest registerRequest) {
+        AuthResponse response = authService.register(registerRequest);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success("User created successfully by Administrator", response));
     }
 }

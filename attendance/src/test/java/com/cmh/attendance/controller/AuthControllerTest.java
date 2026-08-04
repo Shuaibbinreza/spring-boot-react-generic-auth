@@ -1,10 +1,11 @@
 package com.cmh.attendance.controller;
 
+import com.cmh.attendance.dto.AuthResponse;
 import com.cmh.attendance.dto.LoginRequest;
 import com.cmh.attendance.dto.RefreshTokenRequest;
 import com.cmh.attendance.dto.RegisterRequest;
 import com.cmh.attendance.entity.Role;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.cmh.attendance.service.AuthService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,9 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 
 import jakarta.servlet.http.Cookie;
 import java.util.Set;
@@ -34,12 +35,16 @@ public class AuthControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private AuthService authService;
+
     @BeforeEach
     void setUp() {
+        SecurityContextHolder.clearContext();
     }
 
     @Test
-    void testRegisterUser_Success() throws Exception {
+    void testRegisterUser_Unauthenticated_Denied() throws Exception {
         RegisterRequest request = new RegisterRequest(
                 "john_doe",
                 "john@example.com",
@@ -49,6 +54,33 @@ public class AuthControllerTest {
         );
 
         mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void testRegisterUser_Success() throws Exception {
+        RegisterRequest adminReq = new RegisterRequest(
+                "admin_tester",
+                "admin_tester@example.com",
+                "password123",
+                "Admin Tester",
+                Set.of(Role.ROLE_ADMIN)
+        );
+        AuthResponse adminRes = authService.register(adminReq);
+        SecurityContextHolder.clearContext();
+
+        RegisterRequest request = new RegisterRequest(
+                "john_doe",
+                "john@example.com",
+                "password123",
+                "John Doe",
+                Set.of(Role.ROLE_USER)
+        );
+
+        mockMvc.perform(post("/api/auth/register")
+                        .header("Authorization", "Bearer " + adminRes.getAccessToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -61,6 +93,15 @@ public class AuthControllerTest {
 
     @Test
     void testRegisterUser_DuplicateUsername() throws Exception {
+        RegisterRequest adminReq = new RegisterRequest(
+                "admin_tester",
+                "admin_tester@example.com",
+                "password123",
+                "Admin Tester",
+                Set.of(Role.ROLE_ADMIN)
+        );
+        AuthResponse adminRes = authService.register(adminReq);
+
         RegisterRequest request = new RegisterRequest(
                 "john_doe",
                 "john@example.com",
@@ -68,10 +109,8 @@ public class AuthControllerTest {
                 "John Doe",
                 Set.of(Role.ROLE_USER)
         );
-
-        mockMvc.perform(post("/api/auth/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)));
+        authService.register(request);
+        SecurityContextHolder.clearContext();
 
         RegisterRequest duplicateRequest = new RegisterRequest(
                 "john_doe",
@@ -82,6 +121,7 @@ public class AuthControllerTest {
         );
 
         mockMvc.perform(post("/api/auth/register")
+                        .header("Authorization", "Bearer " + adminRes.getAccessToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(duplicateRequest)))
                 .andExpect(status().isBadRequest())
@@ -98,9 +138,8 @@ public class AuthControllerTest {
                 "Alice Wonder",
                 Set.of(Role.ROLE_USER)
         );
-        mockMvc.perform(post("/api/auth/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(registerRequest)));
+        authService.register(registerRequest);
+        SecurityContextHolder.clearContext();
 
         LoginRequest loginRequest = new LoginRequest("alice", "secret123");
 
@@ -141,13 +180,9 @@ public class AuthControllerTest {
                 Set.of(Role.ROLE_USER)
         );
 
-        MvcResult regResult = mockMvc.perform(post("/api/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(registerRequest)))
-                .andReturn();
-
-        JsonNode responseNode = objectMapper.readTree(regResult.getResponse().getContentAsString());
-        String token = responseNode.get("data").get("accessToken").asText();
+        AuthResponse response = authService.register(registerRequest);
+        SecurityContextHolder.clearContext();
+        String token = response.getAccessToken();
 
         mockMvc.perform(get("/api/auth/me")
                         .header("Authorization", "Bearer " + token))
@@ -167,13 +202,9 @@ public class AuthControllerTest {
                 Set.of(Role.ROLE_USER)
         );
 
-        MvcResult regResult = mockMvc.perform(post("/api/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(registerRequest)))
-                .andReturn();
-
-        JsonNode responseNode = objectMapper.readTree(regResult.getResponse().getContentAsString());
-        String token = responseNode.get("data").get("accessToken").asText();
+        AuthResponse response = authService.register(registerRequest);
+        SecurityContextHolder.clearContext();
+        String token = response.getAccessToken();
 
         mockMvc.perform(get("/api/test/admin")
                         .header("Authorization", "Bearer " + token))
@@ -191,13 +222,9 @@ public class AuthControllerTest {
                 Set.of(Role.ROLE_ADMIN)
         );
 
-        MvcResult regResult = mockMvc.perform(post("/api/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(registerRequest)))
-                .andReturn();
-
-        JsonNode responseNode = objectMapper.readTree(regResult.getResponse().getContentAsString());
-        String token = responseNode.get("data").get("accessToken").asText();
+        AuthResponse response = authService.register(registerRequest);
+        SecurityContextHolder.clearContext();
+        String token = response.getAccessToken();
 
         mockMvc.perform(get("/api/test/admin")
                         .header("Authorization", "Bearer " + token))
@@ -216,13 +243,9 @@ public class AuthControllerTest {
                 Set.of(Role.ROLE_USER)
         );
 
-        MvcResult regResult = mockMvc.perform(post("/api/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(registerRequest)))
-                .andReturn();
-
-        JsonNode responseNode = objectMapper.readTree(regResult.getResponse().getContentAsString());
-        String refreshToken = responseNode.get("data").get("refreshToken").asText();
+        AuthResponse response = authService.register(registerRequest);
+        SecurityContextHolder.clearContext();
+        String refreshToken = response.getRefreshToken();
 
         RefreshTokenRequest refreshReq = new RefreshTokenRequest(refreshToken);
 
@@ -245,14 +268,9 @@ public class AuthControllerTest {
                 Set.of(Role.ROLE_USER)
         );
 
-        MvcResult regResult = mockMvc.perform(post("/api/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(registerRequest)))
-                .andExpect(header().exists("Set-Cookie"))
-                .andReturn();
-
-        JsonNode responseNode = objectMapper.readTree(regResult.getResponse().getContentAsString());
-        String token = responseNode.get("data").get("accessToken").asText();
+        AuthResponse response = authService.register(registerRequest);
+        SecurityContextHolder.clearContext();
+        String token = response.getAccessToken();
 
         mockMvc.perform(get("/api/auth/me")
                         .cookie(new Cookie("accessToken", token)))

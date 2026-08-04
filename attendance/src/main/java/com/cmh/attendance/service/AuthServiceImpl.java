@@ -70,6 +70,9 @@ public class AuthServiceImpl implements AuthService {
                 .email(trimmedEmail)
                 .password(passwordEncoder.encode(registerRequest.getPassword()))
                 .fullName(registerRequest.getFullName() != null ? registerRequest.getFullName().trim() : null)
+                .rank(registerRequest.getRank() != null ? registerRequest.getRank().trim() : null)
+                .designation(registerRequest.getDesignation() != null ? registerRequest.getDesignation().trim() : null)
+                .force(registerRequest.getForce() != null ? registerRequest.getForce().trim() : null)
                 .roles(roles)
                 .build();
 
@@ -189,6 +192,9 @@ public class AuthServiceImpl implements AuthService {
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .fullName(user.getFullName())
+                .rank(user.getRank())
+                .designation(user.getDesignation())
+                .force(user.getForce())
                 .roles(user.getRoles())
                 .createdAt(user.getCreatedAt())
                 .build();

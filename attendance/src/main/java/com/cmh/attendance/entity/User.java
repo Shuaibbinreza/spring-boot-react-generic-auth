@@ -35,6 +35,15 @@ public class User {
     @Column(name = "full_name")
     private String fullName;
 
+    @Column(name = "rank_name")
+    private String rank;
+
+    @Column(name = "designation")
+    private String designation;
+
+    @Column(name = "force_type")
+    private String force;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
     @Enumerated(EnumType.STRING)

@@ -5,12 +5,14 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Set;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class RegisterRequest {
@@ -29,5 +31,19 @@ public class RegisterRequest {
 
     private String fullName;
 
+    private String rank;
+
+    private String designation;
+
+    private String force;
+
     private Set<Role> roles;
+
+    public RegisterRequest(String username, String email, String password, String fullName, Set<Role> roles) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.fullName = fullName;
+        this.roles = roles;
+    }
 }

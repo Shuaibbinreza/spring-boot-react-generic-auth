@@ -147,6 +147,16 @@ export async function getAllUsers() {
 }
 
 /**
+ * Admin API: Register/Create a new user account
+ */
+export async function adminCreateUser({ username, email, password, fullName, roles }) {
+  return apiFetch('/admin/users', {
+    method: 'POST',
+    body: JSON.stringify({ username, email, password, fullName, roles }),
+  });
+}
+
+/**
  * Admin API: Get all groups
  */
 export async function getAdminGroups() {

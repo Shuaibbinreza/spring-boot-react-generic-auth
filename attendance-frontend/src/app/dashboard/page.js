@@ -76,7 +76,7 @@ function DashboardContent() {
       <div className="border-b border-maroon-200 pb-4">
         <h1 className="text-3xl font-extrabold text-maroon-700 tracking-tight">Dashboard</h1>
         <p className="text-base text-stone-600 mt-1">
-          Welcome back, {displayProfile?.fullName || displayProfile?.username || 'User'}
+          Welcome back, {displayProfile?.rank ? `${displayProfile.rank} ` : ''}{displayProfile?.fullName || displayProfile?.username || 'User'}
         </p>
       </div>
 
@@ -86,7 +86,7 @@ function DashboardContent() {
           <div className="text-sm font-semibold text-stone-500 uppercase tracking-wider mb-4 flex items-center gap-2">
             <span className="text-base">👤</span> Profile Information
           </div>
-          <div className="space-y-3.5">
+          <div className="space-y-3 font-medium">
             <div className="flex justify-between items-center py-2 border-b border-maroon-100">
               <span className="text-sm text-stone-500">Username</span>
               <span className="text-base font-semibold text-stone-900">{displayProfile?.username || '—'}</span>
@@ -99,6 +99,26 @@ function DashboardContent() {
               <span className="text-sm text-stone-500">Full Name</span>
               <span className="text-base font-semibold text-stone-900">{displayProfile?.fullName || '—'}</span>
             </div>
+            {displayProfile?.rank && (
+              <div className="flex justify-between items-center py-2 border-b border-maroon-100">
+                <span className="text-sm text-stone-500">Rank</span>
+                <span className="text-base font-semibold text-maroon-800">{displayProfile.rank}</span>
+              </div>
+            )}
+            {displayProfile?.designation && (
+              <div className="flex justify-between items-center py-2 border-b border-maroon-100">
+                <span className="text-sm text-stone-500">Designation</span>
+                <span className="text-base font-semibold text-stone-900">{displayProfile.designation}</span>
+              </div>
+            )}
+            {displayProfile?.force && (
+              <div className="flex justify-between items-center py-2 border-b border-maroon-100">
+                <span className="text-sm text-stone-500">Force</span>
+                <span className="px-2.5 py-1 text-xs font-bold bg-maroon-50 text-maroon-700 border border-maroon-300">
+                  {displayProfile.force}
+                </span>
+              </div>
+            )}
             <div className="flex justify-between items-center py-2 border-b border-maroon-100">
               <span className="text-sm text-stone-500">User Type</span>
               <span className={`px-3 py-1 text-xs font-bold uppercase border ${primaryRole.style}`}>

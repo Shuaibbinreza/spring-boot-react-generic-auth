@@ -41,6 +41,9 @@ export default function Navbar() {
             </Link>
             {isAdmin && (
               <>
+                <Link href="/admin/users" className={getLinkClasses('/admin/users')}>
+                  User Registration
+                </Link>
                 <Link href="/admin/groups" className={getLinkClasses('/admin/groups')}>
                   Group Management
                 </Link>
