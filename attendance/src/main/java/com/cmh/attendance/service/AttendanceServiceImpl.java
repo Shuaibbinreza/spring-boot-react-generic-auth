@@ -53,24 +53,27 @@ public class AttendanceServiceImpl implements AttendanceService {
             }
         }
 
+        LocalDateTime checkInTime = LocalDateTime.now();
+        AttendanceStatus evaluatedStatus = evaluateStatus(request.getStatus(), checkInTime, group);
+
         Optional<Attendance> existingOpt = attendanceRepository.findByUserAndAttendanceDate(user, targetDate);
         Attendance attendance;
 
         if (existingOpt.isPresent()) {
             attendance = existingOpt.get();
-            attendance.setStatus(request.getStatus());
+            attendance.setStatus(evaluatedStatus);
             attendance.setNotes(request.getNotes() != null ? request.getNotes().trim() : null);
             if (group != null) {
                 attendance.setGroup(group);
             }
-            attendance.setCheckInTime(LocalDateTime.now());
+            attendance.setCheckInTime(checkInTime);
         } else {
             attendance = Attendance.builder()
                     .user(user)
                     .group(group)
                     .attendanceDate(targetDate)
-                    .checkInTime(LocalDateTime.now())
-                    .status(request.getStatus())
+                    .checkInTime(checkInTime)
+                    .status(evaluatedStatus)
                     .notes(request.getNotes() != null ? request.getNotes().trim() : null)
                     .build();
         }
@@ -181,5 +184,35 @@ public class AttendanceServiceImpl implements AttendanceService {
                 .notes(a.getNotes())
                 .createdAt(a.getCreatedAt())
                 .build();
+    }
+
+    private AttendanceStatus evaluateStatus(AttendanceStatus requestedStatus, LocalDateTime checkInTime, Group group) {
+        if (requestedStatus == AttendanceStatus.ON_LEAVE || requestedStatus == AttendanceStatus.ABSENT) {
+            return requestedStatus;
+        }
+
+        if (group == null) {
+            return requestedStatus;
+        }
+
+        java.time.DayOfWeek dayOfWeek = checkInTime.getDayOfWeek();
+
+        String targetTimeStr;
+        if (dayOfWeek == java.time.DayOfWeek.SATURDAY) {
+            targetTimeStr = group.getSaturdayCheckInTime() != null ? group.getSaturdayCheckInTime() : "09:00";
+        } else {
+            targetTimeStr = group.getWeekdayCheckInTime() != null ? group.getWeekdayCheckInTime() : "08:00";
+        }
+
+        try {
+            java.time.LocalTime cutoff = java.time.LocalTime.parse(targetTimeStr);
+            if (checkInTime.toLocalTime().isAfter(cutoff)) {
+                return AttendanceStatus.LATE;
+            }
+        } catch (Exception ex) {
+            // Fallback gracefully on parsing issue
+        }
+
+        return requestedStatus;
     }
 }

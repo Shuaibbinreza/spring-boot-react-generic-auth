@@ -3,10 +3,12 @@ package com.cmh.attendance.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateGroupRequest {
@@ -17,4 +19,15 @@ public class CreateGroupRequest {
 
     @Size(max = 500, message = "Description must be at most 500 characters")
     private String description;
+
+    private String weekdayCheckInTime;
+
+    private String saturdayCheckInTime;
+
+    private String weekendDays;
+
+    public CreateGroupRequest(String name, String description) {
+        this.name = name;
+        this.description = description;
+    }
 }

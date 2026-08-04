@@ -28,6 +28,18 @@ public class Group {
     @Column(length = 500)
     private String description;
 
+    @Column(name = "weekday_check_in_time")
+    @Builder.Default
+    private String weekdayCheckInTime = "08:00";
+
+    @Column(name = "saturday_check_in_time")
+    @Builder.Default
+    private String saturdayCheckInTime = "09:00";
+
+    @Column(name = "weekend_days")
+    @Builder.Default
+    private String weekendDays = "FRIDAY";
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "group_members",

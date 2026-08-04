@@ -4,7 +4,9 @@ import com.cmh.attendance.dto.ApiResponse;
 import com.cmh.attendance.dto.AttendanceResponse;
 import com.cmh.attendance.dto.AttendanceSubmitRequest;
 import com.cmh.attendance.dto.AttendanceSummaryResponse;
+import com.cmh.attendance.dto.GroupDto;
 import com.cmh.attendance.service.AttendanceService;
+import com.cmh.attendance.service.GroupService;
 import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -20,9 +22,17 @@ import java.util.List;
 public class AttendanceController {
 
     private final AttendanceService attendanceService;
+    private final GroupService groupService;
 
-    public AttendanceController(AttendanceService attendanceService) {
+    public AttendanceController(AttendanceService attendanceService, GroupService groupService) {
         this.attendanceService = attendanceService;
+        this.groupService = groupService;
+    }
+
+    @GetMapping("/groups")
+    public ResponseEntity<ApiResponse<List<GroupDto>>> getAvailableGroups() {
+        List<GroupDto> groups = groupService.getAllGroups();
+        return ResponseEntity.ok(ApiResponse.success("Available groups retrieved successfully", groups));
     }
 
     @PostMapping("/submit")

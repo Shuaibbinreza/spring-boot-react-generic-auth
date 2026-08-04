@@ -2,11 +2,17 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import { submitAttendance, getTodayAttendance, getMyAttendanceHistory } from '@/lib/api';
+import {
+  submitAttendance,
+  getTodayAttendance,
+  getMyAttendanceHistory,
+  getAvailableGroups,
+} from '@/lib/api';
 
 function AttendanceContent() {
   const [todayRecord, setTodayRecord] = useState(null);
   const [history, setHistory] = useState([]);
+  const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
@@ -14,22 +20,29 @@ function AttendanceContent() {
   const [form, setForm] = useState({
     attendanceDate: new Date().toISOString().split('T')[0],
     status: 'PRESENT',
+    groupId: '',
     notes: '',
   });
 
   const loadAttendanceData = useCallback(async () => {
     setLoading(true);
     try {
-      const [todayRes, historyRes] = await Promise.all([
+      const [todayRes, historyRes, groupsRes] = await Promise.all([
         getTodayAttendance().catch(() => null),
         getMyAttendanceHistory().catch(() => null),
+        getAvailableGroups().catch(() => null),
       ]);
+
+      if (groupsRes && groupsRes.data) {
+        setGroups(groupsRes.data);
+      }
 
       if (todayRes && todayRes.data) {
         setTodayRecord(todayRes.data);
         setForm((prev) => ({
           ...prev,
           status: todayRes.data.status || 'PRESENT',
+          groupId: todayRes.data.groupId || prev.groupId,
           notes: todayRes.data.notes || '',
         }));
       }
@@ -82,7 +95,7 @@ function AttendanceContent() {
     <div className="space-y-6">
       <div className="border-b border-maroon-200 pb-4">
         <h1 className="text-3xl font-extrabold text-maroon-700 tracking-tight">Submit Attendance</h1>
-        <p className="text-base text-stone-600 mt-1">Record your daily attendance status and review your historical submissions.</p>
+        <p className="text-base text-stone-600 mt-1">Select your group, record daily attendance status, and review historical submissions.</p>
       </div>
 
       {message.text && (
@@ -143,8 +156,28 @@ function AttendanceContent() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
+              <label htmlFor="groupId" className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
+                Group / Department <span className="text-red-500">*</span>
+              </label>
+              <select
+                id="groupId"
+                value={form.groupId}
+                onChange={(e) => setForm({ ...form, groupId: e.target.value })}
+                required
+                className="w-full px-4 py-2.5 bg-white border border-maroon-300 text-stone-900 text-base focus:outline-none focus:border-maroon-700 focus:ring-1 focus:ring-maroon-700"
+              >
+                <option value="">-- Select Group --</option>
+                {groups.map((g) => (
+                  <option key={g.id} value={g.id}>
+                    {g.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
               <label htmlFor="attendanceDate" className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
-                Date
+                Date <span className="text-red-500">*</span>
               </label>
               <input
                 type="date"
@@ -158,7 +191,7 @@ function AttendanceContent() {
 
             <div>
               <label htmlFor="status" className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
-                Attendance Status
+                Attendance Status <span className="text-red-500">*</span>
               </label>
               <select
                 id="status"

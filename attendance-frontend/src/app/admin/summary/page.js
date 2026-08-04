@@ -4,20 +4,51 @@ import { useState, useEffect, useCallback } from 'react';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { getAdminGroups, getAttendanceSummary } from '@/lib/api';
 
+function generateDateList(startStr, endStr) {
+  const dates = [];
+  if (!startStr || !endStr) return dates;
+  let curr = new Date(startStr + 'T00:00:00');
+  const end = new Date(endStr + 'T00:00:00');
+
+  let maxDays = 31;
+  while (curr <= end && dates.length < maxDays) {
+    const year = curr.getFullYear();
+    const month = String(curr.getMonth() + 1).padStart(2, '0');
+    const day = String(curr.getDate()).padStart(2, '0');
+    const isoDate = `${year}-${month}-${day}`;
+
+    const dayNum = curr.getDate();
+    const dayOfWeek = curr.toLocaleDateString('en-US', { weekday: 'short' });
+
+    dates.push({
+      isoDate,
+      dayNum,
+      dayOfWeek,
+      isWeekend: curr.getDay() === 5,
+    });
+
+    curr.setDate(curr.getDate() + 1);
+  }
+  return dates;
+}
+
 function SummaryContent() {
   const [groups, setGroups] = useState([]);
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState({ type: '', text: '' });
+  const [viewMode, setViewMode] = useState('matrix'); // 'matrix' or 'list'
 
-  // Filter state
-  const defaultStart = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-  const defaultEnd = new Date().toISOString().split('T')[0];
+  // Current Month Date Range Defaults
+  const now = new Date();
+  const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+  const currentMonthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+  const currentMonthName = now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
   const [filters, setFilters] = useState({
     groupId: '',
-    startDate: defaultStart,
-    endDate: defaultEnd,
+    startDate: currentMonthStart,
+    endDate: currentMonthEnd,
   });
 
   const loadSummaryData = useCallback(async (currentFilters) => {
@@ -41,7 +72,14 @@ function SummaryContent() {
 
   useEffect(() => {
     loadSummaryData(filters);
-  }, []); // Run once on mount
+  }, []);
+
+  const handleGroupSelect = (e) => {
+    const selectedGroupId = e.target.value;
+    const updatedFilters = { ...filters, groupId: selectedGroupId };
+    setFilters(updatedFilters);
+    loadSummaryData(updatedFilters);
+  };
 
   const handleFilterSubmit = (e) => {
     e.preventDefault();
@@ -64,12 +102,95 @@ function SummaryContent() {
     }
   };
 
+  const formatTime = (timeStr) => {
+    if (!timeStr) return '';
+    try {
+      return new Date(timeStr).toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    } catch {
+      return '';
+    }
+  };
+
+  const getMatrixCell = (record) => {
+    if (!record) return <span className="text-stone-300 font-normal text-xs">-</span>;
+    const timeDisplay = formatTime(record.checkInTime);
+
+    switch (record.status) {
+      case 'PRESENT':
+        return (
+          <span
+            className="inline-flex items-center justify-center px-1.5 py-1 text-[11px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs whitespace-nowrap"
+            title={`Present (${timeDisplay}${record.notes ? ` - ${record.notes}` : ''})`}
+          >
+            {timeDisplay || 'Present'}
+          </span>
+        );
+      case 'LATE':
+        return (
+          <span
+            className="inline-flex items-center justify-center px-1.5 py-1 text-[11px] font-extrabold bg-amber-100 text-amber-800 border border-amber-300 shadow-2xs whitespace-nowrap"
+            title={`Late (${timeDisplay}${record.notes ? ` - ${record.notes}` : ''}`}
+          >
+            {timeDisplay || 'Late'}
+          </span>
+        );
+      case 'ON_LEAVE':
+        return (
+          <span
+            className="inline-flex items-center justify-center px-1.5 py-1 text-[11px] font-extrabold bg-purple-100 text-purple-800 border border-purple-300 shadow-2xs whitespace-nowrap"
+            title={`On Leave${record.notes ? ` - ${record.notes}` : ''}`}
+          >
+            Leave
+          </span>
+        );
+      case 'ABSENT':
+        return (
+          <span
+            className="inline-flex items-center justify-center px-1.5 py-1 text-[11px] font-extrabold bg-red-100 text-red-800 border border-red-300 shadow-2xs whitespace-nowrap"
+            title={`Absent${record.notes ? ` - ${record.notes}` : ''}`}
+          >
+            Absent
+          </span>
+        );
+      default:
+        return <span className="text-stone-300 font-normal text-xs">-</span>;
+    }
+  };
+
+  // Matrix generation
+  const dateList = generateDateList(filters.startDate, filters.endDate);
+  const userMatrix = Object.values(
+    (summary?.records || []).reduce((acc, record) => {
+      const username = record.username;
+      if (!acc[username]) {
+        acc[username] = {
+          username: record.username,
+          fullName: record.fullName,
+          recordsByDate: {},
+          presentCount: 0,
+          lateCount: 0,
+          leaveCount: 0,
+          absentCount: 0,
+        };
+      }
+      acc[username].recordsByDate[record.attendanceDate] = record;
+      if (record.status === 'PRESENT') acc[username].presentCount++;
+      if (record.status === 'LATE') acc[username].lateCount++;
+      if (record.status === 'ON_LEAVE') acc[username].leaveCount++;
+      if (record.status === 'ABSENT') acc[username].absentCount++;
+      return acc;
+    }, {})
+  );
+
   return (
     <div className="space-y-6">
       <div className="border-b border-maroon-200 pb-4">
-        <h1 className="text-3xl font-extrabold text-maroon-700 tracking-tight">Attendance Summary & Analytics</h1>
+        <h1 className="text-3xl font-extrabold text-maroon-700 tracking-tight">Current Month Attendance & Analytics</h1>
         <p className="text-base text-stone-600 mt-1">
-          Review comprehensive attendance reports, filter by group and date range, and track participation.
+          Viewing attendance roster for <strong>{currentMonthName}</strong>. Select a group from the dropdown to inspect user attendance.
         </p>
       </div>
 
@@ -85,20 +206,20 @@ function SummaryContent() {
       {/* Filter Control Bar */}
       <div className="bg-white border border-maroon-300 p-6 shadow-maroon-sm">
         <form onSubmit={handleFilterSubmit} className="flex flex-wrap items-end gap-4">
-          <div className="flex-1 min-w-[200px]">
-            <label htmlFor="groupFilter" className="block text-xs font-bold text-stone-500 uppercase tracking-wider mb-1.5">
-              Group
+          <div className="flex-1 min-w-[260px]">
+            <label htmlFor="groupFilter" className="block text-xs font-bold text-maroon-800 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+              <span>🏢</span> Select Group / Department
             </label>
             <select
               id="groupFilter"
               value={filters.groupId}
-              onChange={(e) => setFilters({ ...filters, groupId: e.target.value })}
-              className="w-full px-4 py-2.5 bg-white border border-maroon-300 text-stone-900 text-base focus:outline-none focus:border-maroon-700"
+              onChange={handleGroupSelect}
+              className="w-full px-4 py-2.5 bg-white border border-maroon-300 text-stone-900 text-base font-semibold focus:outline-none focus:border-maroon-700"
             >
-              <option value="">All Groups</option>
+              <option value="">All Groups (Entire System)</option>
               {groups.map((g) => (
                 <option key={g.id} value={g.id}>
-                  {g.name}
+                  {g.name} ({g.memberCount || 0} members)
                 </option>
               ))}
             </select>
@@ -146,13 +267,13 @@ function SummaryContent() {
           <div className="bg-white border border-maroon-300 p-5 text-center shadow-maroon-sm">
             <div className="text-2xl mb-1">👥</div>
             <div className="text-3xl font-extrabold text-stone-900">{summary.totalMembers}</div>
-            <div className="text-xs font-bold text-stone-500 uppercase tracking-wider mt-1">Total Users</div>
+            <div className="text-xs font-bold text-stone-500 uppercase tracking-wider mt-1">Group Members</div>
           </div>
 
           <div className="bg-white border border-maroon-300 p-5 text-center shadow-maroon-sm">
             <div className="text-2xl mb-1">📑</div>
             <div className="text-3xl font-extrabold text-stone-900">{summary.totalRecords}</div>
-            <div className="text-xs font-bold text-stone-500 uppercase tracking-wider mt-1">Total Records</div>
+            <div className="text-xs font-bold text-stone-500 uppercase tracking-wider mt-1">Total Submissions</div>
           </div>
 
           <div className="bg-white border border-emerald-300 p-5 text-center shadow-maroon-sm">
@@ -193,22 +314,122 @@ function SummaryContent() {
         </div>
       )}
 
-      {/* Detailed Records Table */}
-      <div className="bg-white border border-maroon-300 p-6 shadow-maroon-sm">
-        <div className="text-sm font-semibold text-stone-500 uppercase tracking-wider mb-4 flex items-center gap-2">
-          <span>📜</span> Detailed Attendance Records
-          {summary?.groupName && (
-            <span className="px-2.5 py-1 text-xs font-bold bg-maroon-50 text-maroon-700 border border-maroon-300 ml-2">
-              {summary.groupName}
-            </span>
-          )}
+      {/* Main Attendance Table Section */}
+      <div className="bg-white border border-maroon-300 p-6 shadow-maroon-sm space-y-4">
+        <div className="flex items-center justify-between flex-wrap gap-3 border-b border-maroon-200 pb-3">
+          <div className="flex items-center gap-2">
+            <h2 className="text-base font-bold text-stone-800 uppercase tracking-wider flex items-center gap-2">
+              <span>📅</span> Group Monthly Attendance Roster ({currentMonthName})
+            </h2>
+            {summary?.groupName && (
+              <span className="px-2.5 py-1 text-xs font-bold bg-maroon-50 text-maroon-700 border border-maroon-300">
+                {summary.groupName}
+              </span>
+            )}
+          </div>
+
+          <div className="flex items-center gap-3">
+            {/* Legend */}
+            <div className="hidden md:flex items-center gap-2 text-xs font-bold text-stone-600 mr-2">
+              <span className="flex items-center gap-1"><span className="w-3.5 h-3.5 bg-emerald-100 border border-emerald-300 text-emerald-800 text-[10px] flex items-center justify-center">P</span> Present</span>
+              <span className="flex items-center gap-1"><span className="w-3.5 h-3.5 bg-amber-100 border border-amber-300 text-amber-800 text-[10px] flex items-center justify-center">L</span> Late</span>
+              <span className="flex items-center gap-1"><span className="w-3.5 h-3.5 bg-purple-100 border border-purple-300 text-purple-800 text-[10px] flex items-center justify-center">O</span> Leave</span>
+              <span className="flex items-center gap-1"><span className="w-3.5 h-3.5 bg-red-100 border border-red-300 text-red-800 text-[10px] flex items-center justify-center">A</span> Absent</span>
+            </div>
+
+            {/* View Mode Toggle */}
+            <div className="flex items-center border border-maroon-300 overflow-hidden">
+              <button
+                type="button"
+                onClick={() => setViewMode('matrix')}
+                className={`px-3 py-1.5 text-xs font-bold transition-colors cursor-pointer ${
+                  viewMode === 'matrix' ? 'bg-maroon-700 text-white' : 'bg-white text-stone-600 hover:bg-maroon-50'
+                }`}
+              >
+                📅 Matrix View
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode('list')}
+                className={`px-3 py-1.5 text-xs font-bold transition-colors cursor-pointer ${
+                  viewMode === 'list' ? 'bg-maroon-700 text-white' : 'bg-white text-stone-600 hover:bg-maroon-50'
+                }`}
+              >
+                📜 List View
+              </button>
+            </div>
+          </div>
         </div>
 
         {loading ? (
-          <p className="text-sm text-stone-500">Loading summary records...</p>
+          <p className="text-sm text-stone-500 py-4">Loading attendance records...</p>
         ) : !summary || !summary.records || summary.records.length === 0 ? (
-          <p className="text-base text-stone-500 py-6 text-center">No attendance records found matching the selected filter criteria.</p>
+          <p className="text-base text-stone-500 py-8 text-center">
+            No attendance records found for the selected group in {currentMonthName}.
+          </p>
+        ) : viewMode === 'matrix' ? (
+          /* MATRIX GRID VIEW: Rows = Users, Columns = Dates */
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse min-w-[700px]">
+              <thead>
+                <tr className="border-b-2 border-maroon-300 bg-maroon-50 text-stone-700 text-xs font-bold uppercase">
+                  <th className="py-3 px-3 min-w-[180px] sticky left-0 bg-maroon-50 z-10 border-r border-maroon-200">
+                    Group Member / User
+                  </th>
+                  {dateList.map((d) => (
+                    <th
+                      key={d.isoDate}
+                      className={`py-2 px-1 text-center min-w-[64px] border-r border-maroon-200 ${
+                        d.isWeekend ? 'bg-stone-200/60 text-stone-500' : ''
+                      }`}
+                    >
+                      <div className="text-[11px] font-extrabold">{d.dayNum}</div>
+                      <div className="text-[9px] text-stone-500 font-semibold uppercase">{d.dayOfWeek}</div>
+                    </th>
+                  ))}
+                  <th className="py-3 px-3 text-center min-w-[140px] bg-maroon-50">
+                    Monthly Summary
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-maroon-100 text-sm">
+                {userMatrix.map((u) => (
+                  <tr key={u.username} className="hover:bg-maroon-50/70 transition-colors">
+                    <td className="py-3 px-3 sticky left-0 bg-white z-10 border-r border-maroon-200 font-medium">
+                      <div className="font-bold text-stone-900 leading-tight">{u.fullName || u.username}</div>
+                      <div className="text-xs text-stone-500">@{u.username}</div>
+                    </td>
+                    {dateList.map((d) => {
+                      const rec = u.recordsByDate[d.isoDate];
+                      return (
+                        <td
+                          key={d.isoDate}
+                          className={`py-2 px-0.5 text-center border-r border-maroon-100 ${
+                            d.isWeekend ? 'bg-stone-50' : ''
+                          }`}
+                        >
+                          {getMatrixCell(rec)}
+                        </td>
+                      );
+                    })}
+                    <td className="py-3 px-3 text-xs font-semibold whitespace-nowrap bg-stone-50 text-stone-700">
+                      <div className="flex items-center gap-1.5 justify-center">
+                        <span className="text-emerald-700 font-extrabold">P:{u.presentCount}</span>
+                        <span>|</span>
+                        <span className="text-amber-700 font-extrabold">L:{u.lateCount}</span>
+                        <span>|</span>
+                        <span className="text-purple-700 font-extrabold">O:{u.leaveCount}</span>
+                        <span>|</span>
+                        <span className="text-red-700 font-extrabold">A:{u.absentCount}</span>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         ) : (
+          /* LIST VIEW */
           <div className="overflow-x-auto">
             <table className="w-full text-left text-base">
               <thead>

@@ -16,6 +16,9 @@ public class GroupDto {
     private Long id;
     private String name;
     private String description;
+    private String weekdayCheckInTime;
+    private String saturdayCheckInTime;
+    private String weekendDays;
     private int memberCount;
     private List<UserSummaryDto> members;
     private LocalDateTime createdAt;

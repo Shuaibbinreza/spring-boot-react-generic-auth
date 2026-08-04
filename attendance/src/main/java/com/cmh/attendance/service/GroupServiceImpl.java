@@ -50,12 +50,21 @@ public class GroupServiceImpl implements GroupService {
             throw new BadRequestException("Group name '" + trimmedName + "' is already in use");
         }
 
-        Group group = Group.builder()
+        Group.GroupBuilder groupBuilder = Group.builder()
                 .name(trimmedName)
-                .description(request.getDescription() != null ? request.getDescription().trim() : null)
-                .build();
+                .description(request.getDescription() != null ? request.getDescription().trim() : null);
 
-        Group savedGroup = groupRepository.save(group);
+        if (request.getWeekdayCheckInTime() != null && !request.getWeekdayCheckInTime().isBlank()) {
+            groupBuilder.weekdayCheckInTime(request.getWeekdayCheckInTime().trim());
+        }
+        if (request.getSaturdayCheckInTime() != null && !request.getSaturdayCheckInTime().isBlank()) {
+            groupBuilder.saturdayCheckInTime(request.getSaturdayCheckInTime().trim());
+        }
+        if (request.getWeekendDays() != null && !request.getWeekendDays().isBlank()) {
+            groupBuilder.weekendDays(request.getWeekendDays().trim());
+        }
+
+        Group savedGroup = groupRepository.save(groupBuilder.build());
         return mapToDto(savedGroup);
     }
 
@@ -72,6 +81,16 @@ public class GroupServiceImpl implements GroupService {
 
         group.setName(trimmedName);
         group.setDescription(request.getDescription() != null ? request.getDescription().trim() : null);
+
+        if (request.getWeekdayCheckInTime() != null && !request.getWeekdayCheckInTime().isBlank()) {
+            group.setWeekdayCheckInTime(request.getWeekdayCheckInTime().trim());
+        }
+        if (request.getSaturdayCheckInTime() != null && !request.getSaturdayCheckInTime().isBlank()) {
+            group.setSaturdayCheckInTime(request.getSaturdayCheckInTime().trim());
+        }
+        if (request.getWeekendDays() != null && !request.getWeekendDays().isBlank()) {
+            group.setWeekendDays(request.getWeekendDays().trim());
+        }
 
         Group updatedGroup = groupRepository.save(group);
         return mapToDto(updatedGroup);
@@ -126,6 +145,9 @@ public class GroupServiceImpl implements GroupService {
                 .id(group.getId())
                 .name(group.getName())
                 .description(group.getDescription())
+                .weekdayCheckInTime(group.getWeekdayCheckInTime() != null ? group.getWeekdayCheckInTime() : "08:00")
+                .saturdayCheckInTime(group.getSaturdayCheckInTime() != null ? group.getSaturdayCheckInTime() : "09:00")
+                .weekendDays(group.getWeekendDays() != null ? group.getWeekendDays() : "FRIDAY")
                 .memberCount(group.getMembers().size())
                 .members(memberDtos)
                 .createdAt(group.getCreatedAt())

@@ -116,6 +116,13 @@ export async function testEndpoint(path) {
 }
 
 /**
+ * Attendance API: Get list of available groups for attendance submission
+ */
+export async function getAvailableGroups() {
+  return apiFetch('/attendance/groups');
+}
+
+/**
  * Attendance API: Submit daily attendance
  */
 export async function submitAttendance({ attendanceDate, status, notes, groupId }) {
@@ -166,20 +173,20 @@ export async function getAdminGroups() {
 /**
  * Admin API: Create a new group
  */
-export async function createGroup({ name, description }) {
+export async function createGroup(groupData) {
   return apiFetch('/admin/groups', {
     method: 'POST',
-    body: JSON.stringify({ name, description }),
+    body: JSON.stringify(groupData),
   });
 }
 
 /**
  * Admin API: Update existing group
  */
-export async function updateGroup(id, { name, description }) {
+export async function updateGroup(id, groupData) {
   return apiFetch(`/admin/groups/${id}`, {
     method: 'PUT',
-    body: JSON.stringify({ name, description }),
+    body: JSON.stringify(groupData),
   });
 }
 
