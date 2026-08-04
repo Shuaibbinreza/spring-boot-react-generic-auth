@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *, ::before, ::after {
+    border-radius: 0 !important;
+  }
+  body {
+    background-color: #ffffff;
+    color: #1a0509;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+}
+
+/* Custom background ambient glow wash */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(ellipse 600px 400px at 20% 10%, rgba(128, 0, 32, 0.03), transparent),
+    radial-gradient(ellipse 500px 300px at 80% 80%, rgba(163, 21, 69, 0.02), transparent);
+  pointer-events: none;
+  z-index: 0;
+}
