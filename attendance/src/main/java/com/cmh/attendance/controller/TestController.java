@@ -1,6 +1,6 @@
 package com.cmh.attendance.controller;
 
-import com.cmh.attendance.dto.ApiResponse;
+import com.cmh.attendance.dto.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;

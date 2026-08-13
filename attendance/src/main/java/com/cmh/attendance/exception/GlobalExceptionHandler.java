@@ -1,6 +1,6 @@
 package com.cmh.attendance.exception;
 
-import com.cmh.attendance.dto.ApiResponse;
+import com.cmh.attendance.dto.response.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;

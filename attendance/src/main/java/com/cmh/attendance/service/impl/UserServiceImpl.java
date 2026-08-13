@@ -1,9 +1,10 @@
-package com.cmh.attendance.service;
+package com.cmh.attendance.service.impl;
 
-import com.cmh.attendance.dto.UserSummaryDto;
+import com.cmh.attendance.dto.response.UserSummaryDto;
 import com.cmh.attendance.entity.User;
 import com.cmh.attendance.exception.ResourceNotFoundException;
 import com.cmh.attendance.repository.UserRepository;
+import com.cmh.attendance.service.UserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

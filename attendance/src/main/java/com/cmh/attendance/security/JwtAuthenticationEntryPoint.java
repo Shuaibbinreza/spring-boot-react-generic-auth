@@ -1,6 +1,6 @@
 package com.cmh.attendance.security;
 
-import com.cmh.attendance.dto.ApiResponse;
+import com.cmh.attendance.dto.response.ApiResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.servlet.ServletException;

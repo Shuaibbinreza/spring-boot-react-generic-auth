@@ -1,7 +1,7 @@
 package com.cmh.attendance.service;
 
-import com.cmh.attendance.dto.CreateGroupRequest;
-import com.cmh.attendance.dto.GroupDto;
+import com.cmh.attendance.dto.request.CreateGroupRequest;
+import com.cmh.attendance.dto.response.GroupDto;
 
 import java.util.List;
 

@@ -1,8 +1,8 @@
 package com.cmh.attendance.controller;
 
-import com.cmh.attendance.dto.ApiResponse;
-import com.cmh.attendance.dto.CreateGroupRequest;
-import com.cmh.attendance.dto.GroupDto;
+import com.cmh.attendance.dto.response.ApiResponse;
+import com.cmh.attendance.dto.request.CreateGroupRequest;
+import com.cmh.attendance.dto.response.GroupDto;
 import com.cmh.attendance.service.GroupService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;

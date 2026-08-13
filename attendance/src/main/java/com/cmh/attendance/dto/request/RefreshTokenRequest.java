@@ -1,4 +1,4 @@
-package com.cmh.attendance.dto;
+package com.cmh.attendance.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;

@@ -1,8 +1,8 @@
 package com.cmh.attendance.service;
 
-import com.cmh.attendance.dto.AttendanceResponse;
-import com.cmh.attendance.dto.AttendanceSubmitRequest;
-import com.cmh.attendance.dto.AttendanceSummaryResponse;
+import com.cmh.attendance.dto.response.AttendanceResponse;
+import com.cmh.attendance.dto.request.AttendanceSubmitRequest;
+import com.cmh.attendance.dto.response.AttendanceSummaryResponse;
 
 import java.time.LocalDate;
 import java.util.List;

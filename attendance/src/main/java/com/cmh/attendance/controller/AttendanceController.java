@@ -1,10 +1,10 @@
 package com.cmh.attendance.controller;
 
-import com.cmh.attendance.dto.ApiResponse;
-import com.cmh.attendance.dto.AttendanceResponse;
-import com.cmh.attendance.dto.AttendanceSubmitRequest;
-import com.cmh.attendance.dto.AttendanceSummaryResponse;
-import com.cmh.attendance.dto.GroupDto;
+import com.cmh.attendance.dto.response.ApiResponse;
+import com.cmh.attendance.dto.response.AttendanceResponse;
+import com.cmh.attendance.dto.request.AttendanceSubmitRequest;
+import com.cmh.attendance.dto.response.AttendanceSummaryResponse;
+import com.cmh.attendance.dto.response.GroupDto;
 import com.cmh.attendance.service.AttendanceService;
 import com.cmh.attendance.service.GroupService;
 import jakarta.validation.Valid;

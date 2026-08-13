@@ -1,9 +1,9 @@
 package com.cmh.attendance.controller;
 
-import com.cmh.attendance.dto.ApiResponse;
-import com.cmh.attendance.dto.AuthResponse;
-import com.cmh.attendance.dto.RegisterRequest;
-import com.cmh.attendance.dto.UserSummaryDto;
+import com.cmh.attendance.dto.response.ApiResponse;
+import com.cmh.attendance.dto.response.AuthResponse;
+import com.cmh.attendance.dto.request.RegisterRequest;
+import com.cmh.attendance.dto.response.UserSummaryDto;
 import com.cmh.attendance.service.AuthService;
 import com.cmh.attendance.service.UserService;
 import jakarta.validation.Valid;

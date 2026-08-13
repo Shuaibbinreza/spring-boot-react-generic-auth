@@ -1,4 +1,4 @@
-package com.cmh.attendance.dto;
+package com.cmh.attendance.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;

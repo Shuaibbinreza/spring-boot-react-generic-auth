@@ -1,10 +1,11 @@
-package com.cmh.attendance.service;
+package com.cmh.attendance.service.impl;
 
-import com.cmh.attendance.dto.CreateGroupRequest;
-import com.cmh.attendance.dto.GroupDto;
-import com.cmh.attendance.dto.UserSummaryDto;
+import com.cmh.attendance.dto.request.CreateGroupRequest;
+import com.cmh.attendance.dto.response.GroupDto;
+import com.cmh.attendance.dto.response.UserSummaryDto;
 import com.cmh.attendance.entity.Group;
 import com.cmh.attendance.entity.User;
+import com.cmh.attendance.service.GroupService;
 import com.cmh.attendance.exception.BadRequestException;
 import com.cmh.attendance.exception.ResourceNotFoundException;
 import com.cmh.attendance.repository.GroupRepository;

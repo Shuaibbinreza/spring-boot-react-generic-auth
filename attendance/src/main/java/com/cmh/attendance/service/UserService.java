@@ -1,6 +1,6 @@
 package com.cmh.attendance.service;
 
-import com.cmh.attendance.dto.UserSummaryDto;
+import com.cmh.attendance.dto.response.UserSummaryDto;
 
 import java.util.List;
 

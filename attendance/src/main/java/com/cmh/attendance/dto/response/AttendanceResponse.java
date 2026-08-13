@@ -1,4 +1,4 @@
-package com.cmh.attendance.dto;
+package com.cmh.attendance.dto.response;
 
 import com.cmh.attendance.entity.AttendanceStatus;
 import lombok.AllArgsConstructor;

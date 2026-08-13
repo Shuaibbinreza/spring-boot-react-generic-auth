@@ -1,4 +1,4 @@
-package com.cmh.attendance.dto;
+package com.cmh.attendance.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

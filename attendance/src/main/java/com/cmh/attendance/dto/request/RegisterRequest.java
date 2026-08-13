@@ -1,4 +1,4 @@
-package com.cmh.attendance.dto;
+package com.cmh.attendance.dto.request;
 
 import com.cmh.attendance.entity.Role;
 import jakarta.validation.constraints.Email;
